@@ -74,17 +74,19 @@ const AUTHOR = {
   }
 };
 
+// 🛠️ 修复：将类型设为 any，彻底解决 "Property does not exist" 报错
+type Publication = any;
+
 // 🆕 新增：论文列表数据
-const PUBLICATIONS = [
+const PUBLICATIONS: Publication[] = [
   {
     id: 1,
     title: "Detoxification of copper and zinc from anaerobic digestate effluent by indigenous bacteria: Mechanisms, pathways and metagenomic analysis",
-    authors: ["Hongbin Yan", "Zhiqiang Gu", " Qi Zhang"], // 你的名字会自动高亮
+    authors: ["Hongbin Yan", "Zhiqiang Gu", " Qi Zhang"],
     venue: "Journal of Hazardous Materials",
     status: "Accepted",
     year: 2024,
-    links: {
-      //pdf: "/1-JHM.pdf",      // PDF链接
+    links: {pdf: "/1-JHM.pdf",
     },
     abstract: "The presence of organic-complexed copper and zinc in anaerobic digestate effluent (ADE) poses persistent ecological toxicity. This study investigated the detoxification performance and biotic responses of indigenous bacteria against ethylene diamine tetraacetic acid (EDTA)-complexed Cu(II) and Zn(II). Heavy metals (HMs) stress induced reactive oxygen species (ROS) generation and enhanced extracellular polymeric substances (EPS)  secretion. At a Cu(II) influent concentration of 20.0 mg⋅L 1, indigenous bacteria removed 88.2% of Cu(II) within nine days. The majority of copper and zinc sequestered by bacteria were stored in the cell envelope, with over 50% of copper and 60% of zinc being immobilized. Transmission electron microscopy mapping (TEM-mapping) revealed significant mineralization of copper and zinc on the cell wall. Proteins abundant in EPS, alongside humic acid-like substances, effectively adsorbed HMs. Indigenous bacteria exhibited the capacity to reduce cupric to the cuprous state and cupric is preferentially reduced to cuprous before reaching reducing capacity saturation. Sulfur precipitation emerges as a crucial pathway for Zn(II) removal. Metagenomic analysis indicated that indigenous bacteria upregulated genes related to HMs homeostasis, efflux, and DNA repair, enhancing its resistance to high concentrations HMs. This study provided theoretical guidance for employing bacterial consortia to eliminate HMs in complex aquatic environments."
   },
@@ -95,7 +97,7 @@ const PUBLICATIONS = [
     venue: "Water Research",
     status: "Accepted",
     year: 2024,
-    links: {
+    links: {pdf: "/2-WR.pdf",
     },
     abstract: "The presence of excessive residual Cu(II), a high-risk heavy metal with potential toxicity and biomagnification property, substantially impede the value-added utilization of anaerobic digestion effluent (ADE). This study adapted indigenous bacterial consortium (IBCs) to eliminate Cu(II) from ADE, and their performances and resistance mechanisms against Cu(II) were analyzed. Results demonstrated that when the Cu(II) exposure concentration exceeded 7.5 mg/L, the biomass of IBCs decreased significantly, cells produced a substantial amount of ROS and EPS, at which time the intracellular Cu(II) content gradually decreased, while Cu(II) accumulation within the EPS substantially increased. The combined features of a high PN/PS ratio, a reversed Zeta potential gradient, and abundant functional groups within EPS collectively render EPS a primary diffusion barrier against Cu(II) toxicity. Mutual physiological and metagenomics analyses reveal that EPS synthesis and secretion, efflux, DNA repair along with coordination between each other were the primary resistance mechanisms of IBCs against Cu(II) toxicity. Furthermore, IBCs exhibited enhanced resistance by enriching bacteria carrying relevant resistance genes. Continuous pretreatment of actual ADE with IBCs at a 10-day hydraulic retention time (HRT) efficiently eliminated Cu(II) concentration from 5.01 mg/L to ~0.68 mg/L by day 2. This elimination remained stable for the following 8 days of operation, further validated their good Cu(II) elimination stability. Notably, supplementing IBCs with 200 mg/L polymerized ferrous sulfate significantly enhanced their settling performance. By elucidating the intricate interplay of Cu(II) toxicity and IBC resistance mechanisms, this study provides a theoretical foundation for eliminating heavy metal barriers in ADE treatment."
   },
@@ -290,7 +292,7 @@ const PublicationsSection = () => (
           </h3>
 
           <p className="text-slate-600 text-sm mb-4">
-            {pub.authors.map((author, idx) => (
+            {pub.authors.map((author: string, idx: number) => (
               <span key={idx} className={author === AUTHOR.name ? "font-bold text-slate-900" : ""}>
                 {author}{idx < pub.authors.length - 1 ? ", " : ""}
               </span>
