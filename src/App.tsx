@@ -16,13 +16,14 @@ import {
   Mail,
   FileText,
   Award,
-  // MessageSquare, // 删除未使用的引用
   Send,
   Loader2,
-  // Trash2 // 删除未使用的引用
+  // 新增图标引用
+  Link as LinkIcon,
+  FileCode,
+  Download
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-// import { enUS } from 'date-fns/locale'; // 删除未使用的引用
 
 // --- Firebase Imports ---
 import { initializeApp } from 'firebase/app';
@@ -33,8 +34,7 @@ import {
   onSnapshot, 
   query, 
   orderBy, 
-  serverTimestamp,
-  // Timestamp // 删除未使用的引用
+  serverTimestamp 
 } from 'firebase/firestore';
 
 // --- Configuration ---
@@ -64,16 +64,45 @@ const AUTHOR = {
   title: "PhD Candidate at The University of Queensland",
   university: "School of Chemical Engineering",
   bio: "You are Welcome!",
-  // Using a generic avatar placeholder, replace with your real photo
   avatar: "/avatar.jpg",
-  email: "hongbin.yan@uq.edu.au", // Example email
+  email: "hongbin.yan@uq.edu.au",
   socials: {
     github: "https://github.com/biscuitava",
     twitter: "https://twitter.com",
     linkedin: "https://linkedin.com",
-    scholar: "#" // Google Scholar link placeholder
+    scholar: "#" 
   }
 };
+
+// 🆕 新增：论文列表数据
+const PUBLICATIONS = [
+  {
+    id: 1,
+    title: "Detoxification of copper and zinc from anaerobic digestate effluent by indigenous bacteria: Mechanisms, pathways and metagenomic analysis",
+    authors: ["Hongbin Yan", "Zhiqiang Gu", " Qi Zhang"], // 你的名字会自动高亮
+    venue: "Journal of Hazardous Materials",
+    status: "Accepted",
+    year: 2024,
+    links: {
+      pdf: "/1-JHM.pdf",      // PDF链接
+      //code: "#",     // GitHub链接
+      //project: "#"   // 项目主页链接
+    },
+    abstract: "The presence of organic-complexed copper and zinc in anaerobic digestate effluent (ADE) poses persistent ecological toxicity. This study investigated the detoxification performance and biotic responses of indigenous bacteria against ethylene diamine tetraacetic acid (EDTA)-complexed Cu(II) and Zn(II). Heavy metals (HMs) stress induced reactive oxygen species (ROS) generation and enhanced extracellular polymeric substances (EPS)  secretion. At a Cu(II) influent concentration of 20.0 mg⋅L 1, indigenous bacteria removed 88.2% of Cu(II) within nine days. The majority of copper and zinc sequestered by bacteria were stored in the cell envelope, with over 50% of copper and 60% of zinc being immobilized. Transmission electron microscopy mapping (TEM-mapping) revealed significant mineralization of copper and zinc on the cell wall. Proteins abundant in EPS, alongside humic acid-like substances, effectively adsorbed HMs. Indigenous bacteria exhibited the capacity to reduce cupric to the cuprous state and cupric is preferentially reduced to cuprous before reaching reducing capacity saturation. Sulfur precipitation emerges as a crucial pathway for Zn(II) removal. Metagenomic analysis indicated that indigenous bacteria upregulated genes related to HMs homeostasis, efflux, and DNA repair, enhancing its resistance to high concentrations HMs. This study provided theoretical guidance for employing bacterial consortia to eliminate HMs in complex aquatic environments."
+  },
+  {
+    id: 2,
+    title: "Elimination of copper obstacle factor in anaerobic digestion effluent for value-added utilization: Performance and resistance mechanisms of indigenous bacterial consortium",
+    authors: ["Zhiqiang Gu", "Hongbin Yan", "Qi Zhang"],
+    venue: "Water Research",
+    status: "Accepted",
+    year: 2024,
+    links: {
+      pdf: "/2-WR.pdf"
+    },
+    abstract: "The presence of excessive residual Cu(II), a high-risk heavy metal with potential toxicity and biomagnification property, substantially impede the value-added utilization of anaerobic digestion effluent (ADE). This study adapted indigenous bacterial consortium (IBCs) to eliminate Cu(II) from ADE, and their performances and resistance mechanisms against Cu(II) were analyzed. Results demonstrated that when the Cu(II) exposure concentration exceeded 7.5 mg/L, the biomass of IBCs decreased significantly, cells produced a substantial amount of ROS and EPS, at which time the intracellular Cu(II) content gradually decreased, while Cu(II) accumulation within the EPS substantially increased. The combined features of a high PN/PS ratio, a reversed Zeta potential gradient, and abundant functional groups within EPS collectively render EPS a primary diffusion barrier against Cu(II) toxicity. Mutual physiological and metagenomics analyses reveal that EPS synthesis and secretion, efflux, DNA repair along with coordination between each other were the primary resistance mechanisms of IBCs against Cu(II) toxicity. Furthermore, IBCs exhibited enhanced resistance by enriching bacteria carrying relevant resistance genes. Continuous pretreatment of actual ADE with IBCs at a 10-day hydraulic retention time (HRT) efficiently eliminated Cu(II) concentration from 5.01 mg/L to ~0.68 mg/L by day 2. This elimination remained stable for the following 8 days of operation, further validated their good Cu(II) elimination stability. Notably, supplementing IBCs with 200 mg/L polymerized ferrous sulfate significantly enhanced their settling performance. By elucidating the intricate interplay of Cu(II) toxicity and IBC resistance mechanisms, this study provides a theoretical foundation for eliminating heavy metal barriers in ADE treatment."
+  },
+];
 
 const RESEARCH_LOGS = [
   {
@@ -101,56 +130,6 @@ const RESEARCH_LOGS = [
     category: "Experimental Protocol",
     readTime: "5 min read",
     tags: ["细胞计数", "荧光染色", "活死细胞鉴别"]
-  },
-  {
-    id: 2,
-    title: "Lab Log #42: Debugging Gradient Explosion in RNNs",
-    excerpt: "Spent the entire week wrestling with unstable gradients in my recurrent models. Here is a detailed log of what went wrong, how I diagnosed it using gradient clipping, and the final fix.",
-    content: [
-      "Research is 1% inspiration and 99% debugging. This week was a testament to that.",
-      "## Symptoms",
-      "During the training of my sequence prediction model, the loss would decrease normally for the first 10 epochs and then suddenly spike to NaN. It was frustrating to say the least.",
-      "## Diagnosis",
-      "I plotted the gradient norms for each layer. It turned out that the recurrent weights were accumulating values > 1.0, causing the gradients to explode exponentially over long sequences.",
-      "## The Fix",
-      "Implementing `torch.nn.utils.clip_grad_norm_` immediately stabilized the training. I also switched from standard RNNs to LSTMs (again), which naturally handle long-term dependencies better."
-    ],
-    date: "2024-11-15",
-    category: "Experiment Log",
-    readTime: "8 min read",
-    tags: ["Debugging", "PyTorch", "RNN"]
-  },
-  {
-    id: 3,
-    title: "Literature Review: The State of Multimodal LLMs",
-    excerpt: "A comprehensive summary of recent papers reading regarding GPT-4V, Gemini, and LLaVA. How are we bridging the gap between text and visual understanding?",
-    content: [
-      "Large Language Models (LLMs) are no longer just about text. The integration of visual encoders is the next big frontier.",
-      "## Alignment Strategies",
-      "Most current approaches use a projection layer to map visual embeddings into the LLM's token space. However, is this the most efficient way? Recent papers suggest that cross-attention might offer better granularity.",
-      "## Instruction Tuning",
-      "Visual instruction tuning datasets are becoming the bottleneck. We need higher quality, diverse data rather than just larger quantities.",
-      "I have compiled a list of 20 essential papers on this topic in my Notion, linked below."
-    ],
-    date: "2024-10-02",
-    category: "Literature Review",
-    readTime: "15 min read",
-    tags: ["LLM", "Multimodal", "Survey"]
-  },
-  {
-    id: 4,
-    title: "Life at UQ: St Lucia Campus & Jacaranda Season",
-    excerpt: "Taking a break from the lab to appreciate the beautiful purple Jacarandas blooming across the campus. A photo essay of my first semester in Brisbane.",
-    content: [
-      "They say if a Jacaranda flower falls on your head, you'll fail your exams. Luckily, as a PhD student, I don't have exams—only deadlines!",
-      "## The Great Court",
-      "The sandstone architecture of the Great Court is stunning. It's my favorite place to sit with a coffee and read papers (or just pretend to read while watching the ibis birds steal sandwiches).",
-      "Brisbane's weather has been treating me well. The balance between intense research work and the laid-back Aussie lifestyle is exactly what I needed."
-    ],
-    date: "2024-09-20",
-    category: "Life @ UQ",
-    readTime: "4 min read",
-    tags: ["UQ", "Brisbane", "Lifestyle"]
   }
 ];
 
@@ -248,12 +227,10 @@ const PostDetail = ({ post, onBack }: { post: any, onBack: () => void }) => (
 
     <div className="prose prose-slate prose-lg max-w-none">
       {post.content.map((paragraph: string, idx: number) => {
-        // 1. 处理标题 (Heading)
         if (paragraph.startsWith('## ')) {
           return <h2 key={idx} className="text-2xl font-bold text-slate-800 mt-10 mb-4">{paragraph.replace('## ', '')}</h2>;
         }
         
-        // 2. 处理图片 (Image) - 格式: ![图片说明](图片链接)
         const imageMatch = paragraph.match(/^!\[(.*?)\]\((.*?)\)$/);
         if (imageMatch) {
           const alt = imageMatch[1];
@@ -274,7 +251,6 @@ const PostDetail = ({ post, onBack }: { post: any, onBack: () => void }) => (
           );
         }
 
-        // 3. 处理普通段落 (Paragraph)
         return <p key={idx} className="text-slate-600 leading-8 mb-6 text-lg font-light">{paragraph}</p>;
       })}
     </div>
@@ -288,6 +264,65 @@ const PostDetail = ({ post, onBack }: { post: any, onBack: () => void }) => (
           </span>
         ))}
       </div>
+    </div>
+  </div>
+);
+
+// 🆕 新增组件：Publications Section
+const PublicationsSection = () => (
+  <div className="max-w-3xl mx-auto animate-fade-in">
+    <div className="text-center mb-12">
+      <h2 className="text-3xl font-serif font-bold text-slate-900 mb-4">Publications</h2>
+      <p className="text-slate-500">Selected research papers and conference proceedings.</p>
+    </div>
+
+    <div className="space-y-8">
+      {PUBLICATIONS.map((pub) => (
+        <div key={pub.id} className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+             <span className={`px-3 py-1 text-xs font-bold rounded-full mb-2 sm:mb-0 ${
+               pub.status === 'Accepted' || pub.status === 'Published' ? 'bg-green-50 text-green-700' : 'bg-yellow-50 text-yellow-700'
+             }`}>
+               {pub.status}
+             </span>
+             <span className="text-slate-400 text-sm font-medium">{pub.venue} | {pub.year}</span>
+          </div>
+
+          <h3 className="text-xl font-serif font-bold text-slate-900 mb-3 leading-snug">
+            {pub.title}
+          </h3>
+
+          <p className="text-slate-600 text-sm mb-4">
+            {pub.authors.map((author, idx) => (
+              <span key={idx} className={author === AUTHOR.name ? "font-bold text-slate-900" : ""}>
+                {author}{idx < pub.authors.length - 1 ? ", " : ""}
+              </span>
+            ))}
+          </p>
+
+          <p className="text-slate-500 text-sm leading-relaxed mb-6 border-l-2 border-slate-100 pl-4 italic">
+            "{pub.abstract}"
+          </p>
+
+          <div className="flex gap-3">
+            {pub.links.pdf && (
+              <a href={pub.links.pdf} className="flex items-center px-3 py-1.5 bg-slate-50 text-slate-700 rounded-md text-sm hover:bg-slate-100 transition-colors">
+                <Download size={16} className="mr-2" /> PDF
+              </a>
+            )}
+            {pub.links.code && (
+              <a href={pub.links.code} className="flex items-center px-3 py-1.5 bg-slate-50 text-slate-700 rounded-md text-sm hover:bg-slate-100 transition-colors">
+                <FileCode size={16} className="mr-2" /> Code
+              </a>
+            )}
+             {pub.links.project && (
+              <a href={pub.links.project} className="flex items-center px-3 py-1.5 bg-slate-50 text-slate-700 rounded-md text-sm hover:bg-slate-100 transition-colors">
+                <LinkIcon size={16} className="mr-2" /> Project Page
+              </a>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   </div>
 );
@@ -365,19 +400,19 @@ const CVSection = () => (
         </h3>
         <div className="space-y-4">
           <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-            <h4 className="text-slate-900 font-bold text-sm md:text-base">EfficientViT: Rethinking Attention Mechanisms for Vision</h4>
+            <h4 className="text-slate-900 font-bold text-sm md:text-base">Detoxification of copper and zinc from anaerobic digestate effluent by indigenous bacteria: Mechanisms, pathways and metagenomic analysis</h4>
             <p className="text-slate-600 text-sm mt-1">
-              <span className="font-semibold text-slate-900">Hongbin Yan</span>, Co-Author A, Co-Author B
+              <span className="font-semibold text-slate-900">Hongbin Yan</span>, Zhiqiang Gu, Qi Zhang
             </p>
-            <p className="text-indigo-600 text-xs font-semibold mt-2 uppercase">CVPR 2025 (Accepted)</p>
+            <p className="text-indigo-600 text-xs font-semibold mt-2 uppercase">Journal of Hazardous Materials (Accepted)</p>
           </div>
           {/* Placeholder for another pub */}
           <div className="bg-slate-50 p-4 rounded-lg border border-slate-100">
-            <h4 className="text-slate-900 font-bold text-sm md:text-base">A Survey on Multimodal Large Language Models</h4>
+            <h4 className="text-slate-900 font-bold text-sm md:text-base">Development of microalgae-bacteria symbiosis system for enhanced treatment of biogas slurry</h4>
             <p className="text-slate-600 text-sm mt-1">
-              Co-Author X, <span className="font-semibold text-slate-900">Hongbin Yan</span>
+              <span className="font-semibold text-slate-900">Hongbin Yan</span>, Rumeng Lu, Qi Zhang
             </p>
-            <p className="text-slate-500 text-xs font-semibold mt-2 uppercase">Under Review</p>
+            <p className="text-indigo-600 text-xs font-semibold mt-2 uppercase">Bioresource Techonology (Accepted)</p>
           </div>
         </div>
       </section>
@@ -514,7 +549,7 @@ const GuestbookSection = () => {
 };
 
 export default function App() {
-  const [view, setView] = useState<'home' | 'about' | 'post' | 'guestbook'>('home');
+  const [view, setView] = useState<'home' | 'about' | 'post' | 'guestbook' | 'publications'>('home');
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -524,7 +559,7 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
-  const handleNavClick = (targetView: 'home' | 'about' | 'guestbook') => {
+  const handleNavClick = (targetView: 'home' | 'about' | 'guestbook' | 'publications') => {
     setView(targetView);
     setSelectedPostId(null);
     setIsMenuOpen(false);
@@ -552,6 +587,9 @@ export default function App() {
           <div className="hidden md:flex items-center space-x-2">
             <NavLink isActive={view === 'home' && !selectedPostId} onClick={() => handleNavClick('home')}>
               Research Logs
+            </NavLink>
+            <NavLink isActive={view === 'publications'} onClick={() => handleNavClick('publications')}>
+              Publications
             </NavLink>
             <NavLink isActive={view === 'about'} onClick={() => handleNavClick('about')}>
               CV & Profile
@@ -586,6 +624,12 @@ export default function App() {
               Research Logs
             </button>
             <button 
+              onClick={() => handleNavClick('publications')}
+              className={`w-full text-left px-4 py-3 rounded-lg font-medium ${view === 'publications' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600'}`}
+            >
+              Publications
+            </button>
+            <button 
               onClick={() => handleNavClick('about')}
               className={`w-full text-left px-4 py-3 rounded-lg font-medium ${view === 'about' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600'}`}
             >
@@ -615,11 +659,11 @@ export default function App() {
                    Open to Research Collaboration
                 </div>
                 <h1 className="text-4xl sm:text-5xl font-serif font-bold text-slate-900 mb-6 leading-tight">
-                  Researching Intelligence,<br/>
+                  Well come to my Channel,<br/>
                   <span className="text-slate-400 italic">Documenting Discovery.</span>
                 </h1>
                 <p className="text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto font-light">
-                  Welcome to my academic portfolio. I am a PhD Candidate at the University of Queensland, sharing my experiments, paper reviews, and the journey towards a doctorate in AI.
+                  Sharing experiments protocols, papers, and the journey towards a doctorate in Chemical Engineering.
                 </p>
               </section>
 
@@ -641,6 +685,10 @@ export default function App() {
 
           {view === 'post' && selectedPost && (
             <PostDetail post={selectedPost} onBack={() => handleNavClick('home')} />
+          )}
+
+          {view === 'publications' && (
+            <PublicationsSection />
           )}
 
           {view === 'about' && (
