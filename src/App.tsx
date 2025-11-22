@@ -85,8 +85,6 @@ const PUBLICATIONS = [
     year: 2024,
     links: {
       pdf: "/1-JHM.pdf",      // PDF链接
-      //code: "#",     // GitHub链接
-      //project: "#"   // 项目主页链接
     },
     abstract: "The presence of organic-complexed copper and zinc in anaerobic digestate effluent (ADE) poses persistent ecological toxicity. This study investigated the detoxification performance and biotic responses of indigenous bacteria against ethylene diamine tetraacetic acid (EDTA)-complexed Cu(II) and Zn(II). Heavy metals (HMs) stress induced reactive oxygen species (ROS) generation and enhanced extracellular polymeric substances (EPS)  secretion. At a Cu(II) influent concentration of 20.0 mg⋅L 1, indigenous bacteria removed 88.2% of Cu(II) within nine days. The majority of copper and zinc sequestered by bacteria were stored in the cell envelope, with over 50% of copper and 60% of zinc being immobilized. Transmission electron microscopy mapping (TEM-mapping) revealed significant mineralization of copper and zinc on the cell wall. Proteins abundant in EPS, alongside humic acid-like substances, effectively adsorbed HMs. Indigenous bacteria exhibited the capacity to reduce cupric to the cuprous state and cupric is preferentially reduced to cuprous before reaching reducing capacity saturation. Sulfur precipitation emerges as a crucial pathway for Zn(II) removal. Metagenomic analysis indicated that indigenous bacteria upregulated genes related to HMs homeostasis, efflux, and DNA repair, enhancing its resistance to high concentrations HMs. This study provided theoretical guidance for employing bacterial consortia to eliminate HMs in complex aquatic environments."
   },
