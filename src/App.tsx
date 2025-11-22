@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   BookOpen, 
   Github, 
@@ -15,20 +15,60 @@ import {
   GraduationCap,
   Mail,
   FileText,
-  Award
+  Award,
+  MessageSquare,
+  Send,
+  Loader2,
+  Trash2
 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import { enUS } from 'date-fns/locale';
+
+// --- Firebase Imports ---
+import { initializeApp } from 'firebase/app';
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  serverTimestamp,
+  Timestamp 
+} from 'firebase/firestore';
+
+// --- Configuration ---
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCV-KUuy4N4LTmTO6252mSRfkybwz1pZQ4",
+  authDomain: "hongbin-guestbook.firebaseapp.com",
+  projectId: "hongbin-guestbook",
+  storageBucket: "hongbin-guestbook.firebasestorage.app",
+  messagingSenderId: "190048677056",
+  appId: "1:190048677056:web:86971f58e2aeee95fed125",
+  measurementId: "G-LJ7MN3FFHR"
+};
+
+// Initialize Firebase
+let db: any;
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+} catch (error) {
+  console.warn("Firebase not initialized. Did you fill in the config?");
+}
 
 // --- Data Configuration ---
 const AUTHOR = {
   name: "Hongbin Yan",
   title: "PhD Candidate at The University of Queensland",
-  university: "School of Information Technology and Electrical Engineering (ITEE)",
-  bio: "Exploring the frontiers of Artificial Intelligence and Data Science. My research focuses on deep learning optimization and computer vision. Documenting my experiments, paper readings, and life at UQ.",
+  university: "School of Chemical Engineering",
+  bio: "You are Welcome!",
   // Using a generic avatar placeholder, replace with your real photo
-  avatar: "https://api.dicebear.com/7.x/notionists/svg?seed=Hongbin",
+  avatar: "/avatar.jpg",
   email: "hongbin.yan@uq.edu.au", // Example email
   socials: {
-    github: "https://github.com",
+    github: "https://github.com/biscuitava",
     twitter: "https://twitter.com",
     linkedin: "https://linkedin.com",
     scholar: "#" // Google Scholar link placeholder
@@ -38,21 +78,29 @@ const AUTHOR = {
 const RESEARCH_LOGS = [
   {
     id: 1,
-    title: "Paper Accepted at CVPR 2025: A New Approach to Vision Transformers",
-    excerpt: "I am thrilled to share that our latest work on efficient vision transformers has been accepted to CVPR 2025! In this post, I break down the core contributions and the challenges we overcame during the rebuttal phase.",
+    title: "基于荧光染料的细胞染色观察",
+    excerpt: "本方法用于对活细胞/死细胞或膜受损细胞的观察",
     content: [
-      "The journey to CVPR 2025 has been long but rewarding. Our paper, 'EfficientViT: Rethinking Attention Mechanisms', proposes a novel way to reduce the computational complexity of transformers in vision tasks.",
-      "## The Problem",
-      "Standard self-attention mechanisms scale quadratically with image size. This limits the application of high-resolution image processing in real-time scenarios.",
-      "## Our Solution",
-      "We introduced a sparse attention mechanism that focuses only on semantically relevant regions. This reduced the FLOPs by 40% while maintaining comparable accuracy to the state-of-the-art (SOTA).",
-      "## Future Work",
-      "Next, we plan to extend this architecture to video understanding tasks. I will be presenting this work in June. See you there!"
+      "本方法用于对活细胞/死细胞或膜受损细胞的观察",
+      "## 操作流程",
+      "1.取200 μL培养物悬液，以10000 rpm离心10 min。注意，悬液体积并不用固定在200 μL，可根据悬液中的细胞浓度按需求稀释或浓缩以保证60倍物镜下视野中细胞分布数量合适（以数的清为标准，过多数不清，过少不具备代表性），在计算时能换算得回去即可。",
+      "2.弃去上清液后，将沉淀重悬在200 μL 0.85% NaCl溶液中（不使用PBS的原因是试剂盒说明书中称，PBS对染色效果有些影响）并于室温下避光孵化1h。",
+      "3.孵化完成后以10000 rpm离心10 min，弃去上清液后再重悬于200 μL 0.85% NaCl溶液中。",
+      "4.加入4 μL AB混合染料，在黑暗条件下孵化15分钟后，离心除去溶液中的染料，再重悬于200 μL 0.85% NaCl溶液中用于镜检。",
+      "5.AB混合染料的配制：取A试剂和B试剂1：1混合，而后使用DMSO，即二甲基亚砜稀释10倍，例如，取5 μL A+5 μL B+ 90 μL DMSO。A试剂和B试剂以及配置的混合染料均需保存在-20 ℃条件下。",
+      "## Note",
+      "由于染料十分昂贵，而镜检时只需几μL的培养液，因此本方法是在染料试剂盒标准操作的基础上将样品采集量和混合染料的添加量减至1/5。",
+      "6.镜检：在载玻片上滴加2 μL 染色后的样品，盖上1块预先制备的琼脂片后，再盖上一块盖玻片后上机镜检。使用琼脂片而非直接盖玻片的原因是，琼脂片具有孔隙，能够良好地将细胞固定住，防止其在镜检时发生流动。其中，活细胞在镜检是呈绿色荧光，死细胞/细胞膜受损的细胞将呈红色。",
+      "7.琼脂片的制作方法，可参考以下网站和文献：https://biotium.com/tech-tips/tech-tip-imaging-bacteria-using-agarose-pads/, 参考文献：Measuring mRNA copy number in individual Escherichia coli cells using single-molecule fluorescent in situ hybridization. Skinner et al. 2013. Nature Protocols.",
+      "![琼脂片的制作](/1.jpg)",
+      "8.计数：可通过image J（即新版Fiji，可从Fijis: ImageJ, with Batterie Included下载，计数教程可参考：用imagej对细胞核自动计数（相似结构也行）_哔哩哔哩_bilibili）对活细胞及死细胞分别进行计数。",
+      "细胞凋亡率=（死细胞数）/（死活细胞数+活细胞数）",
+      "细胞存活率=（活细胞数）/（死活细胞数+活细胞数）"
     ],
-    date: "2025-02-28",
-    category: "Publication",
+    date: "2025-11-22",
+    category: "Experimental Protocol",
     readTime: "5 min read",
-    tags: ["Computer Vision", "Deep Learning", "Conference"]
+    tags: ["细胞计数", "荧光染色", "活死细胞鉴别"]
   },
   {
     id: 2,
@@ -200,9 +248,33 @@ const PostDetail = ({ post, onBack }: { post: any, onBack: () => void }) => (
 
     <div className="prose prose-slate prose-lg max-w-none">
       {post.content.map((paragraph: string, idx: number) => {
+        // 1. 处理标题 (Heading)
         if (paragraph.startsWith('## ')) {
           return <h2 key={idx} className="text-2xl font-bold text-slate-800 mt-10 mb-4">{paragraph.replace('## ', '')}</h2>;
         }
+        
+        // 2. 处理图片 (Image) - 格式: ![图片说明](图片链接)
+        const imageMatch = paragraph.match(/^!\[(.*?)\]\((.*?)\)$/);
+        if (imageMatch) {
+          const alt = imageMatch[1];
+          const src = imageMatch[2];
+          return (
+            <figure key={idx} className="my-8">
+              <img 
+                src={src} 
+                alt={alt} 
+                className="w-full rounded-lg shadow-md border border-slate-100" 
+              />
+              {alt && (
+                <figcaption className="text-center text-slate-500 text-sm mt-2 italic">
+                  {alt}
+                </figcaption>
+              )}
+            </figure>
+          );
+        }
+
+        // 3. 处理普通段落 (Paragraph)
         return <p key={idx} className="text-slate-600 leading-8 mb-6 text-lg font-light">{paragraph}</p>;
       })}
     </div>
@@ -255,15 +327,21 @@ const CVSection = () => (
         <div className="space-y-6 pl-2 border-l-2 border-indigo-50 ml-2">
           <div className="pl-6 relative">
              <div className="absolute -left-[9px] top-1.5 w-4 h-4 bg-indigo-500 rounded-full border-4 border-white shadow-sm"></div>
-             <h4 className="text-slate-900 font-bold">PhD in Computer Science</h4>
+             <h4 className="text-slate-900 font-bold">PhD in Chemical Engineering</h4>
              <p className="text-slate-600">The University of Queensland (UQ)</p>
-             <p className="text-slate-400 text-sm mt-1">2024 - Present</p>
+             <p className="text-slate-400 text-sm mt-1">2025 - Present</p>
           </div>
           <div className="pl-6 relative">
              <div className="absolute -left-[9px] top-1.5 w-4 h-4 bg-slate-200 rounded-full border-4 border-white"></div>
-             <h4 className="text-slate-900 font-bold">Master of Science (CS)</h4>
-             <p className="text-slate-600">Previous University Name</p>
-             <p className="text-slate-400 text-sm mt-1">2021 - 2023</p>
+             <h4 className="text-slate-900 font-bold">Master of Food Science and Engineering</h4>
+             <p className="text-slate-600">Nanchang University</p>
+             <p className="text-slate-400 text-sm mt-1">2022 - 2025</p>
+          </div>
+          <div className="pl-6 relative">
+             <div className="absolute -left-[9px] top-1.5 w-4 h-4 bg-slate-200 rounded-full border-4 border-white"></div>
+             <h4 className="text-slate-900 font-bold">Bachelor of Food Science and Engineering</h4>
+             <p className="text-slate-600">Nanchang University</p>
+             <p className="text-slate-400 text-sm mt-1">2018 - 2022</p>
           </div>
         </div>
       </section>
@@ -273,7 +351,7 @@ const CVSection = () => (
           <FileText size={20} className="mr-2 text-indigo-500" /> Research Interests
         </h3>
         <div className="flex flex-wrap gap-2">
-          {["Computer Vision", "Deep Learning", "Optimization", "Generative AI", "Robotics", "Data Mining"].map(tag => (
+          {["Microalgal technology", "Wasetewater treament", "Antibiotics pollution", "ARGs"].map(tag => (
             <span key={tag} className="px-3 py-1 bg-slate-50 text-slate-700 border border-slate-100 rounded-md text-sm font-medium">
               {tag}
             </span>
@@ -308,8 +386,135 @@ const CVSection = () => (
   </div>
 );
 
+const GuestbookSection = () => {
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newName, setNewName] = useState('');
+  const [newMessage, setNewMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  // Fetch messages
+  useEffect(() => {
+    if (!db) return;
+    
+    const q = query(
+      collection(db, 'guestbook'), 
+      orderBy('createdAt', 'desc')
+    );
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const msgs = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setMessages(msgs);
+    }, (err) => {
+      console.error("Error fetching messages:", err);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    
+    if (!db) {
+      setError("Database connection failed. Check your Firebase config.");
+      return;
+    }
+    if (!newName.trim() || !newMessage.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, 'guestbook'), {
+        name: newName,
+        message: newMessage,
+        createdAt: serverTimestamp()
+      });
+      setNewMessage('');
+    } catch (err) {
+      console.error("Error adding message:", err);
+      setError("Failed to send message. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto animate-fade-in">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-serif font-bold text-slate-900 mb-4">Guestbook</h2>
+        <p className="text-slate-500">Leave a message, ask a question, or just say hi!</p>
+      </div>
+
+      {/* Input Form */}
+      <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-100 shadow-sm mb-10">
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-slate-700 mb-1">Your Name</label>
+            <input 
+              type="text" 
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-50 outline-none transition-all"
+              placeholder="e.g. Alice Researcher"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-slate-700 mb-1">Message</label>
+            <textarea 
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-50 outline-none transition-all h-24 resize-none"
+              placeholder="Write your message here..."
+              required
+            />
+          </div>
+          {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="flex items-center justify-center w-full bg-slate-900 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmitting ? <Loader2 className="animate-spin mr-2" size={18} /> : <Send className="mr-2" size={18} />}
+            {isSubmitting ? 'Sending...' : 'Sign Guestbook'}
+          </button>
+        </form>
+      </div>
+
+      {/* Message List */}
+      <div className="space-y-6">
+        {messages.length === 0 ? (
+          <div className="text-center text-slate-400 py-10 italic">
+            No messages yet. Be the first to write one!
+          </div>
+        ) : (
+          messages.map((msg) => (
+            <div key={msg.id} className="bg-white p-6 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm mr-3">
+                    {msg.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="font-bold text-slate-900">{msg.name}</span>
+                </div>
+                <span className="text-xs text-slate-400">
+                  {msg.createdAt?.toDate ? formatDistanceToNow(msg.createdAt.toDate(), { addSuffix: true }) : 'Just now'}
+                </span>
+              </div>
+              <p className="text-slate-600 leading-relaxed whitespace-pre-wrap">{msg.message}</p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function App() {
-  const [view, setView] = useState<'home' | 'about' | 'post'>('home');
+  const [view, setView] = useState<'home' | 'about' | 'post' | 'guestbook'>('home');
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -319,7 +524,7 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
-  const handleNavClick = (targetView: 'home' | 'about') => {
+  const handleNavClick = (targetView: 'home' | 'about' | 'guestbook') => {
     setView(targetView);
     setSelectedPostId(null);
     setIsMenuOpen(false);
@@ -350,6 +555,9 @@ export default function App() {
             </NavLink>
             <NavLink isActive={view === 'about'} onClick={() => handleNavClick('about')}>
               CV & Profile
+            </NavLink>
+            <NavLink isActive={view === 'guestbook'} onClick={() => handleNavClick('guestbook')}>
+              Guestbook
             </NavLink>
             <div className="w-px h-4 bg-slate-200 mx-2"></div>
             <a href="#" className="p-2 text-slate-400 hover:text-indigo-600 transition-colors" aria-label="Search">
@@ -382,6 +590,12 @@ export default function App() {
               className={`w-full text-left px-4 py-3 rounded-lg font-medium ${view === 'about' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600'}`}
             >
               CV & Profile
+            </button>
+            <button 
+              onClick={() => handleNavClick('guestbook')}
+              className={`w-full text-left px-4 py-3 rounded-lg font-medium ${view === 'guestbook' ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600'}`}
+            >
+              Guestbook
             </button>
           </div>
         )}
@@ -431,6 +645,10 @@ export default function App() {
 
           {view === 'about' && (
             <CVSection />
+          )}
+
+          {view === 'guestbook' && (
+            <GuestbookSection />
           )}
 
         </div>
