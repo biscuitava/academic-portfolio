@@ -16,13 +16,13 @@ import {
   Mail,
   FileText,
   Award,
-  MessageSquare,
+  // MessageSquare, // 删除未使用的引用
   Send,
   Loader2,
-  Trash2
+  // Trash2 // 删除未使用的引用
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { enUS } from 'date-fns/locale';
+// import { enUS } from 'date-fns/locale'; // 删除未使用的引用
 
 // --- Firebase Imports ---
 import { initializeApp } from 'firebase/app';
@@ -34,7 +34,7 @@ import {
   query, 
   orderBy, 
   serverTimestamp,
-  Timestamp 
+  // Timestamp // 删除未使用的引用
 } from 'firebase/firestore';
 
 // --- Configuration ---
